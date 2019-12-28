@@ -21,7 +21,7 @@ function App() {
 
 // GRABS WEATHER DATA
   const fetchCityData = () => {
-    axios.get(`http://api.weatherstack.com/forecast?&access_key=266632d46722dd6fcc72d0ad1c6339f2&query=${city}`)
+    axios.get(`https://api.weatherstack.com/forecast?&access_key=266632d46722dd6fcc72d0ad1c6339f2&query=${city}`)
       .then(res => {
         const cityData = res.data;
         setCurrentTemp(cityData.current.temperature)
