@@ -13,7 +13,11 @@ function App() {
   const [convertedDeg, setConvertedDeg] = useState(false)
   const [statsPannel, setsStatsPannel] = useState(false)
 
-// HANDELS SIDE EFFECTS
+  // const dataTrigger = (func1, func2) => {
+  //   return func1, func2;
+  // }
+
+  // HANDELS SIDE EFFECTS
   useEffect(() => {
     fetchCityData();
     fetchWeatherNews();
@@ -21,9 +25,10 @@ function App() {
 
 // GRABS WEATHER DATA
   const fetchCityData = () => {
-    axios.get(`https://api.weatherstack.com/forecast?&access_key=266632d46722dd6fcc72d0ad1c6339f2&query=${city}`)
+    axios.get(`http://api.weatherstack.com/forecast?&access_key=266632d46722dd6fcc72d0ad1c6339f2&query=${city}`)
       .then(res => {
         const cityData = res.data;
+        // console.log(cityData);
         setCurrentTemp(cityData.current.temperature)
         setData(cityData);
         console.log("CITY DATA: ", cityData);
