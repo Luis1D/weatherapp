@@ -6,21 +6,18 @@ import './App.css';
 // Multiply by 9, then divide by 5, then add 32
 
 function App() {
-  const [city, setCity] = useState('San Francisco');
+  const [city, setCity] = useState('Sacramento');
   const [data, setData] = useState()
   const [currentTemp, setCurrentTemp] = useState();
   const [fahrenheit, setFahrenheit] = useState();
   const [convertedDeg, setConvertedDeg] = useState(false)
   const [statsPannel, setsStatsPannel] = useState(false)
-
-  // const dataTrigger = (func1, func2) => {
-  //   return func1, func2;
-  // }
+  const [forecastApi, setForecastApi] = useState("");
+  const [astro, setAstro] = useState();
 
   // HANDELS SIDE EFFECTS
   useEffect(() => {
     fetchCityData();
-    fetchWeatherNews();
   },[])
 
 // GRABS WEATHER DATA
@@ -28,10 +25,11 @@ function App() {
     axios.get(`http://api.weatherstack.com/forecast?&access_key=266632d46722dd6fcc72d0ad1c6339f2&query=${city}`)
       .then(res => {
         const cityData = res.data;
-        // console.log(cityData);
         setCurrentTemp(cityData.current.temperature)
         setData(cityData);
-        console.log("CITY DATA: ", cityData);
+        const forecast = cityData.forecast;
+        const astroData = forecast[Object.keys(forecast)[0]].astro;
+        setAstro(astroData);
       })
       .catch(err => {
         console.log("ERROR: ",err);
@@ -42,6 +40,8 @@ function App() {
     if(data) {
       axios.get(`https://api.weather.gov/points/${data.location.lat},${data.location.lon}`)
       .then(res => {
+        const data = res.data.properties.forecast;
+        setForecastApi(data);
         console.log("RESPONSE: ", res);
       })
       .catch(err => {
@@ -77,7 +77,6 @@ function App() {
   const handleSubmit = e => {
     e.preventDefault();
     fetchCityData();
-    fetchWeatherNews();
   }
 
   return (
@@ -101,25 +100,21 @@ function App() {
           <div className="city-info">
             <h2 className="location">{ data.location.name }, { data.location.region }</h2> 
             <div className="flex">
-              <h3><span className="list-item">Status:</span> { data.current.weather_descriptions[0] }</h3>
-              {console.log("INNER-HTML: ",currentTemp)}
+              <h3 className="weather-description"> { data.current.weather_descriptions[0] }</h3>
             </div>
           </div>
           <div className="right-side-container">
-            <button className="temp" onClick={ () => celsiusToFahrenheit() }>
+            <div className="temp" onClick={ () => celsiusToFahrenheit() }>
                 { convertedDeg ? fahrenheit + " F" : currentTemp + " C" }
-            </button>
-            <img src={ data.current.weather_icons[0] } className="image" alt="weather icon" />
+            </div>
           </div>
           </div>
 
-          <div className={ statsPannel ? "stats-container-active" : "stats-container" }>
+          <div className="stats-container-active">
+            
+            {/* GENERAL INFO */}
+            <h3>OVERVIEW</h3>
             <ul>
-              <li><span className="list-item">Country:</span> { data.location.country }</li>
-              <li><span className="list-item">lat:</span> { data.location.lat }</li>
-              <li><span className="list-item">lon:</span> { data.location.lon }</li>
-              <li><span className="list-item">Time:</span> { data.location.localtime }</li>
-              <hr/>
               <li><span className="list-item">Feels like:</span> { data.current.feelslike }c</li>
               <li><span className="list-item">Humidity:</span> { data.current.humidity }%</li>
               <li><span className="list-item">Chance of rain:</span> { data.current.precip }%</li>
@@ -127,6 +122,24 @@ function App() {
               <li><span className="list-item">Wind Speed:</span> { data.current.wind_speed }</li>
               <li><span className="list-item">Wind Direction:</span> { data.current.wind_dir }</li>
             </ul>
+
+            <div className="astro-stats-container">
+              <h3>Astro</h3>
+              {
+                astro ?
+                <ul>
+                  <li><span className="list-item">Sunrise:</span> { astro.sunrise }</li>
+                  <li><span className="list-item">Sunset:</span> { astro.sunset }</li>
+                  <li><span className="list-item">Moonrise:</span> { astro.moonrise }</li>
+                  <li><span className="list-item">Moonset:</span> { astro.moonset }</li>
+                  <li><span className="list-item">Moon Phase:</span> { astro.moon_phase }</li>
+                  <li><span className="list-item">Moon Illumination:</span> { astro.moon_illumination }</li>
+                </ul> : null
+
+              }
+            </div>
+
+
           </div>
         </div>
         : <img src={require("./loading.svg")} alt="loading" className="loading-icon" />
